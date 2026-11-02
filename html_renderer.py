@@ -235,10 +235,12 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: 
     ont_cards = ""
     for item in ontology_items:
         authors = ", ".join(item.get("authors", []))
+        region = item.get("region", "")
+        region_tag = f"<span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>{region}</span>" if region else ""
         ont_cards += f"""
         <div class="card">
           <div class="card-top">
-            <span class="badge badge-ont">arXiv cs.AI / cs.LO</span>
+            <div>{region_tag}<span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
             <a href="{item['link']}" target="_blank" class="card-title">{item['title']}</a>
             <div class="card-desc">{item.get('summary', '')}</div>
           </div>

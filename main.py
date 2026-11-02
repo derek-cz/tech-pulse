@@ -67,11 +67,13 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
     })
     for item in ontology_items:
         authors_str = ", ".join(item.get("authors", []))
+        region = item.get("region", "")
+        region_str = f"`{region}` " if region else ""
         elements.append({
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"• **[{item['title']}]({item['link']})**\n  ✍️ 作者: {authors_str} ({item.get('published', '')})\n  💡 摘要: {item.get('summary', '')}"
+                "content": f"• {region_str}**[{item['title']}]({item['link']})**\n  ✍️ 作者: {authors_str} ({item.get('published', '')})\n  💡 摘要: {item.get('summary', '')}"
             }
         })
     elements.append({"tag": "hr"})
