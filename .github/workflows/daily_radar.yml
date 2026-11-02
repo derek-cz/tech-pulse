@@ -1,0 +1,42 @@
+name: Daily Tech Pulse
+
+on:
+  schedule:
+    # 每天 UTC 00:30（对应北京时间 08:30，工作日/周末均定时唤醒）
+    - cron: '30 0 * * *'
+  workflow_dispatch: # 支持在 GitHub 仓库页面随时手动点击 Run 测试
+
+jobs:
+  run-radar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 赋予提交每日简报归档的权限
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Tech Pulse Pipeline
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
+          FEISHU_OPEN_ID: ${{ secrets.FEISHU_OPEN_ID }}
+        run: |
+          python main.py
+
+      - name: Commit and Push Daily Digest
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add digests/ || true
+          git commit -m "chore: archive daily digest [skip ci]" || exit 0
+          git push

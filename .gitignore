@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Local cache & credentials
+config.json
+.cache_snapshot.json
+
+# System
+.DS_Store
+Thumbs.db
