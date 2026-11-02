@@ -1,9 +1,9 @@
 """
-技术雷达数据采集模块（全维度双引擎·中国区严格保底·强摘要质检版）
-改进点：
-1. 本体论前沿：全面纳入双轨保底（🇨🇳 中国区前沿成果至少 1 篇 + 🌐 全球顶会成果至少 1 篇）；
-2. 描述强门禁：过滤掉 GitHub 上作者未写 description 的半成品项目（严禁出现“暂无详细描述”）；
-3. 容灾与快照保障：网络或 API 抖动时无缝降级回退。
+技术雷达数据采集模块（全维度双引擎·中国区严格保底·智能 README 摘要提取版）
+核心升级：
+1. 本体论前沿：双轨保底（🇨🇳 中国区成果至少 1 篇 + 🌐 全球顶会成果至少 1 篇）；
+2. 智能 README 提取：当 GitHub 项目没有填写侧边栏简介时，自动深入该项目的 README.md 抓取正文首段作为摘要，杜绝“暂无详细描述”；
+3. 本地与云端持久快照容灾机制。
 """
 
 import os
@@ -14,7 +14,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 HEADERS = {
-    "User-Agent": "TechRadar/8.0 (Mozilla/5.0 Windows NT 10.0; Win64; x64)"
+    "User-Agent": "TechRadar/9.0 (Mozilla/5.0 Windows NT 10.0; Win64; x64)"
 }
 
 CACHE_FILE = os.path.join(os.path.dirname(__file__), ".cache_snapshot.json")
@@ -36,6 +36,31 @@ def save_cache(key: str, data: list):
             json.dump(cache, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
+
+def get_readme_summary(full_name: str) -> str:
+    """当 GitHub 项目未填写侧边栏关于页简介时，自动从其 README.md 提取正文实质首段"""
+    for branch in ["main", "master"]:
+        url = f"https://raw.githubusercontent.com/{full_name}/{branch}/README.md"
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=5)
+            if r.status_code == 200:
+                lines = r.text.split("\n")
+                valid_lines = []
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # 过滤标题、图片、badge、html标签
+                    if line.startswith("#") or line.startswith("![") or line.startswith("[!") or line.startswith("<"):
+                        continue
+                    valid_lines.append(line)
+                    if len(" ".join(valid_lines)) > 80:
+                        break
+                if valid_lines:
+                    return " ".join(valid_lines)[:160].strip() + "..."
+        except Exception:
+            pass
+    return None
 
 def apply_region_floor(candidates: list[dict], sort_key: str, total_limit: int = 4, min_each: int = 1) -> list[dict]:
     """品质优先 + 区域双向保底排序：确保中国区与全球区各至少有 min_each 项"""
@@ -201,7 +226,6 @@ def fetch_ontology_updates() -> list[dict]:
     except Exception as e:
         print(f"[Warn] Fetch Global ontology failed: {e}")
 
-    # 3 篇配额：双区各至少保底 1 篇
     result = apply_region_floor(candidates, sort_key="score", total_limit=3, min_each=1)
     if result:
         save_cache("ontology", result)
@@ -210,7 +234,7 @@ def fetch_ontology_updates() -> list[dict]:
     return result
 
 def fetch_github_trending() -> list[dict]:
-    """采集 GitHub 增长工具：强质检门禁（排除无描述半成品），双区各保底 1 个高星新工具"""
+    """采集 GitHub 增长工具：智能 README 兜底提取，双区各保底 1 个高星新工具"""
     candidates = []
     since_date = (datetime.now(timezone.utc) - timedelta(days=10)).strftime("%Y-%m-%d")
 
@@ -228,13 +252,18 @@ def fetch_github_trending() -> list[dict]:
             if resp.status_code == 200:
                 data = resp.json()
                 for repo in data.get("items", []):
+                    full_name = repo.get("full_name")
                     desc = (repo.get("description") or "").strip()
 
-                    # ⚠️ 强质检门禁 1：排除作者未写描述或描述太短（<10字符）的未完善项目，绝不展示“暂无详细描述”
-                    if len(desc) < 10:
-                        continue
+                    # 💡 核心升级：如果作者没写关于页简介（或短于8个字符），自动深入提取 README 首段
+                    if len(desc) < 8:
+                        readme_desc = get_readme_summary(full_name)
+                        if readme_desc:
+                            desc = readme_desc
+                        else:
+                            continue  # 确实连 README 都没写内容的仓库才跳过
 
-                    # ⚠️ 强质检门禁 2：排除纯壁纸、姿势图库、设计模板等非技术/非开发工具
+                    # 排除非开发工具类项目
                     if any(noise in desc.lower() for noise in ["wallpaper", "gallery", "姿势", "photo", "awesome-", "cheat-sheet"]):
                         continue
 
@@ -242,7 +271,7 @@ def fetch_github_trending() -> list[dict]:
 
                     candidates.append({
                         "region": region,
-                        "name": repo.get("full_name"),
+                        "name": full_name,
                         "stars": repo.get("stargazers_count", 0),
                         "description": desc,
                         "language": repo.get("language") or "General",
@@ -260,14 +289,10 @@ def fetch_github_trending() -> list[dict]:
     return result
 
 if __name__ == "__main__":
-    print("Testing upgraded dual-region fetcher with strict descriptions...")
+    print("Testing upgraded dual-region fetcher with smart README extraction...")
     ai = fetch_ai_news()
     ont = fetch_ontology_updates()
     gh = fetch_github_trending()
-    print(f"\nAI: {len(ai)} 条 (中国区: {len([x for x in ai if '中国' in x['region']])}, 全球: {len([x for x in ai if '全球' in x['region']])})")
-    print(f"本体: {len(ont)} 篇 (中国区: {len([x for x in ont if '中国' in x['region']])}, 全球: {len([x for x in ont if '全球' in x['region']])})")
-    for o in ont:
-        print(f"  [{o['region']}] {o['title'][:50]}... | 作者: {o['authors']}")
-    print(f"GitHub: {len(gh)} 个 (中国区: {len([x for x in gh if '中国' in x['region']])}, 全球: {len([x for x in gh if '全球' in x['region']])})")
+    print(f"\nAI: {len(ai)} 条, 本体: {len(ont)} 篇, GitHub: {len(gh)} 个")
     for g in gh:
-        print(f"  [{g['region']}] {g['name']} (⭐ {g['stars']}): {g['description'][:50]}")
+        print(f"  [{g['region']}] {g['name']} (⭐ {g['stars']}):\n    📝 {g['description']}")
