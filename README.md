@@ -36,7 +36,7 @@
    - **本体论演进**：追踪语义网、知识表示与推理（cs.AI / cs.LO / cs.DB）底层学术论文与规范；
    - **开源新星**：抓取近 72 小时内全球 Star 增长最快的新生工具。
 2. **飞书自建应用直推**：
-   - 基于飞书开放平台内部应用（App ID: `cli_aae87f88e5b8dd1d`）；
+   - 基于飞书开放平台内部应用（App ID: `cli_xxxxxxxxxxxxxxxx`）；
    - 支持免手动查 ID：通过 `tenant_access_token` 自动从租户中解析接收人标识；
    - 交互卡片排版：包含热度徽标、作者/发布时间、摘要及外链直达。
 3. **双区知识管理规范契合**：
@@ -64,7 +64,7 @@ E:\AI\claude\工具\tech-radar/
 
 | 配置项 | 环境变量名 | 说明 |
 | :--- | :--- | :--- |
-| **App ID** | `FEISHU_APP_ID` | 飞书自建应用 ID（如 `cli_aae87f88e5b8dd1d`） |
+| **App ID** | `FEISHU_APP_ID` | 飞书自建应用 ID（如 `cli_xxxxxxxxxxxxxxxx`） |
 | **App Secret** | `FEISHU_APP_SECRET` | 飞书应用密钥（在飞书开放平台后台获取） |
 | **Open ID** | `FEISHU_OPEN_ID` | 接收消息的个人用户唯一标识 |
 
