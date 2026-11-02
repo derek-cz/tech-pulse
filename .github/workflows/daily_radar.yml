@@ -6,11 +6,23 @@ on:
     - cron: '30 0 * * *'
   workflow_dispatch: # 支持在 GitHub 仓库页面随时手动点击 Run 测试
 
+# 赋予 Contents 与 Pages 部署所需权限
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 限制并发，保证部署互不干扰
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   run-radar:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # 赋予提交每日简报归档的权限
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout code
@@ -30,6 +42,7 @@ jobs:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
           FEISHU_OPEN_ID: ${{ secrets.FEISHU_OPEN_ID }}
+          PAGES_URL: https://derek-cz.github.io/tech-pulse/
         run: |
           python main.py
 
@@ -37,6 +50,18 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add digests/ || true
+          git add digests/ index.html || true
           git commit -m "chore: archive daily digest [skip ci]" || exit 0
           git push
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

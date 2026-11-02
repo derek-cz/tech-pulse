@@ -39,8 +39,26 @@ def get_tenant_access_token(app_id: str, app_secret: str) -> str:
         return res.get("tenant_access_token")
     return None
 
-def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str) -> dict:
+def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str, web_url: str = None) -> dict:
     elements = []
+
+    # 快捷直达按钮区（置顶）
+    if web_url:
+        elements.append({
+            "tag": "action",
+            "actions": [
+                {
+                    "tag": "button",
+                    "text": {
+                        "tag": "plain_text",
+                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文排版)"
+                    },
+                    "type": "primary",
+                    "url": web_url
+                }
+            ]
+        })
+        elements.append({"tag": "hr"})
 
     # 1. AI 板块
     elements.append({
@@ -173,13 +191,22 @@ def main():
     archive_path = archive_to_assistant(ai_items, ontology_items, gh_items, date_str)
     html_path = os.path.join(ARCHIVE_DIR, f"{date_str}.html")
     render_html(ai_items, ontology_items, gh_items, date_str, html_path)
+
+    # 同时生成 index.html（便于作为 Web 站点首页直接访问）
+    index_html_path = os.path.join(os.path.dirname(__file__), "index.html")
+    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path)
+
     print(f"✓ 简报已沉淀到助手知识库: {archive_path}")
     print(f"✓ HTML 页面已生成: {html_path}")
+    print(f"✓ Web 站点首页已更新: {index_html_path}")
+
+    # GitHub Pages 专属在线访问 URL
+    web_url = os.environ.get("PAGES_URL") or "https://derek-cz.github.io/tech-pulse/"
 
     # 2. 推送飞书个人单聊
     token = get_tenant_access_token(app_id, app_secret)
     if token and open_id:
-        card = build_card_content(ai_items, ontology_items, gh_items, date_str)
+        card = build_card_content(ai_items, ontology_items, gh_items, date_str, web_url=web_url)
         ok = send_to_user(token, open_id, card)
         if ok:
             print(f"✓ 已成功通过机器人直接推送至你的飞书！")
