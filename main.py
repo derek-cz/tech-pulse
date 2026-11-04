@@ -13,6 +13,7 @@ from datetime import datetime
 import requests
 from fetcher import fetch_ai_news, fetch_ontology_updates, fetch_github_trending
 from html_renderer import render_html
+from insight_engine import enrich_all
 
 DEFAULT_LOCAL_ARCHIVE = r"E:\AI\05-助手\03-外部知识\技术雷达\简报归档"
 if os.path.exists(os.path.dirname(DEFAULT_LOCAL_ARCHIVE)):
@@ -39,7 +40,7 @@ def get_tenant_access_token(app_id: str, app_secret: str) -> str:
         return res.get("tenant_access_token")
     return None
 
-def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str, web_url: str = None) -> dict:
+def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str, web_url: str = None, executive_summary: str = "") -> dict:
     elements = []
 
     # 快捷直达按钮区（置顶）
@@ -51,12 +52,23 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
                     "tag": "button",
                     "text": {
                         "tag": "plain_text",
-                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文排版)"
+                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文研报)"
                     },
                     "type": "primary",
                     "url": web_url
                 }
             ]
+        })
+        elements.append({"tag": "hr"})
+
+    # 每日架构师脉搏速读
+    if executive_summary:
+        elements.append({
+            "tag": "div",
+            "text": {
+                "tag": "lark_md",
+                "content": f"**📌 今日脉搏速读与架构师建议**\n{executive_summary}"
+            }
         })
         elements.append({"tag": "hr"})
 
@@ -69,11 +81,12 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
         src = item.get("source", "Web")
         region = item.get("region", "")
         region_str = f"`{region}` " if region else ""
+        takeaway_str = f"\n  💡 {item['takeaway']}" if item.get("takeaway") else ""
         elements.append({
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"• {region_str}`[{src}]` **[{item['title']}]({item['link']})**\n  ⭐ 关注度: {item.get('points', 0)} | 📅 日期: {item.get('date', '')}"
+                "content": f"• {region_str}`[{src}]` **[{item['title']}]({item['link']})**{takeaway_str}"
             }
         })
     elements.append({"tag": "hr"})
@@ -87,11 +100,12 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
         authors_str = ", ".join(item.get("authors", []))
         region = item.get("region", "")
         region_str = f"`{region}` " if region else ""
+        insp_str = f"\n  💡 {item['inspiration']}" if item.get("inspiration") else ""
         elements.append({
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"• {region_str}**[{item['title']}]({item['link']})**\n  ✍️ 作者: {authors_str} ({item.get('published', '')})\n  💡 摘要: {item.get('summary', '')}"
+                "content": f"• {region_str}**[{item['title']}]({item['link']})**\n  ✍️ {authors_str} ({item.get('published', '')}){insp_str}"
             }
         })
     elements.append({"tag": "hr"})
@@ -104,11 +118,12 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
     for item in gh_items:
         region = item.get("region", "")
         region_str = f"`{region}` " if region else ""
+        use_str = f"\n  🎯 {item['practical_use']}" if item.get("practical_use") else ""
         elements.append({
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"• {region_str}**[{item['name']}]({item['link']})** (⭐ {item.get('stars', 0)} | {item.get('language', '')})\n  🛠️ 简介: {item.get('description', '')}"
+                "content": f"• {region_str}**[{item['name']}]({item['link']})** (⭐ {item.get('stars', 0)} | {item.get('language', '')})\n  🛠️ {item.get('description', '')}{use_str}"
             }
         })
 
@@ -122,7 +137,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
 
     return {
         "header": {
-            "title": {"tag": "plain_text", "content": f"📡 技术雷达日报 ({date_str})"},
+            "title": {"tag": "plain_text", "content": f"📡 技术脉搏研报 ({date_str})"},
             "template": "blue"
         },
         "elements": elements
@@ -187,14 +202,18 @@ def main():
     gh_items = fetch_github_trending()
     print(f"✓ 采集 GitHub 项目: {len(gh_items)} 条")
 
+    # 深度语义与架构师落地启发注入（无 LLM 时基于自研启发式语义规则优雅自愈）
+    ai_items, ontology_items, gh_items, executive_summary = enrich_all(ai_items, ontology_items, gh_items)
+    print("✓ 架构师落地启发与今日速读已注入完毕")
+
     # 1. 沉淀至 05-助手 (Markdown 与 HTML 双版本)
     archive_path = archive_to_assistant(ai_items, ontology_items, gh_items, date_str)
     html_path = os.path.join(ARCHIVE_DIR, f"{date_str}.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, html_path)
+    render_html(ai_items, ontology_items, gh_items, date_str, html_path, executive_summary=executive_summary)
 
     # 同时生成 index.html（便于作为 Web 站点首页直接访问）
     index_html_path = os.path.join(os.path.dirname(__file__), "index.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path)
+    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path, executive_summary=executive_summary)
 
     print(f"✓ 简报已沉淀到助手知识库: {archive_path}")
     print(f"✓ HTML 页面已生成: {html_path}")
@@ -206,7 +225,7 @@ def main():
     # 2. 推送飞书个人单聊
     token = get_tenant_access_token(app_id, app_secret)
     if token and open_id:
-        card = build_card_content(ai_items, ontology_items, gh_items, date_str, web_url=web_url)
+        card = build_card_content(ai_items, ontology_items, gh_items, date_str, web_url=web_url, executive_summary=executive_summary)
         ok = send_to_user(token, open_id, card)
         if ok:
             print(f"✓ 已成功通过机器人直接推送至你的飞书！")
