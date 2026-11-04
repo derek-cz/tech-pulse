@@ -11,7 +11,13 @@ import sys
 import json
 from datetime import datetime
 import requests
-from fetcher import fetch_ai_news, fetch_ontology_updates, fetch_github_trending
+from fetcher import (
+    fetch_ai_news,
+    fetch_ontology_updates,
+    fetch_github_trending,
+    fetch_prompt_skills,
+    fetch_tax_tech
+)
 from html_renderer import render_html
 from insight_engine import enrich_all
 
@@ -40,7 +46,7 @@ def get_tenant_access_token(app_id: str, app_secret: str) -> str:
         return res.get("tenant_access_token")
     return None
 
-def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str, web_url: str = None, executive_summary: str = "") -> dict:
+def build_card_content(ai_items: list, ontology_items: list, gh_items: list, prompt_items: list, tax_items: list, date_str: str, web_url: str = None, executive_summary: str = "") -> dict:
     elements = []
 
     # 快捷直达按钮区（置顶）
@@ -52,7 +58,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
                     "tag": "button",
                     "text": {
                         "tag": "plain_text",
-                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文研报)"
+                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文全景研报)"
                     },
                     "type": "primary",
                     "url": web_url
@@ -67,7 +73,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"**📌 今日脉搏速读与架构师建议**\n{executive_summary}"
+                "content": f"**📌 今日脉搏全景速读与架构师建议**\n{executive_summary}"
             }
         })
         elements.append({"tag": "hr"})
@@ -75,7 +81,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
     # 1. AI 板块
     elements.append({
         "tag": "div",
-        "text": {"tag": "lark_md", "content": "**🔥 1. AI 前沿动态**"}
+        "text": {"tag": "lark_md", "content": "**🔥 1. AI 战略与产业前沿**"}
     })
     for item in ai_items:
         src = item.get("source", "Web")
@@ -94,7 +100,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
     # 2. 本体/知识图谱板块
     elements.append({
         "tag": "div",
-        "text": {"tag": "lark_md", "content": "**🧩 2. 本体与知识工程前沿 (arXiv)**"}
+        "text": {"tag": "lark_md", "content": "**🧩 2. 本体论与知识工程深潜 (arXiv)**"}
     })
     for item in ontology_items:
         authors_str = ", ".join(item.get("authors", []))
@@ -113,7 +119,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
     # 3. GitHub 增长工具
     elements.append({
         "tag": "div",
-        "text": {"tag": "lark_md", "content": "**⚡ 3. GitHub 增长最快新项目**"}
+        "text": {"tag": "lark_md", "content": "**🛠️ 3. 智能体与开发者爆发新工具**"}
     })
     for item in gh_items:
         region = item.get("region", "")
@@ -124,6 +130,38 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
             "text": {
                 "tag": "lark_md",
                 "content": f"• {region_str}**[{item['name']}]({item['link']})** (⭐ {item.get('stars', 0)} | {item.get('language', '')})\n  🛠️ {item.get('description', '')}{use_str}"
+            }
+        })
+    elements.append({"tag": "hr"})
+
+    # 4. Prompt 与 Agent 实战心法
+    elements.append({
+        "tag": "div",
+        "text": {"tag": "lark_md", "content": "**💡 4. 提示词工程与 Agent 实战技巧**"}
+    })
+    for item in prompt_items:
+        practice_str = f"\n  💡 {item['practice']}" if item.get("practice") else ""
+        elements.append({
+            "tag": "div",
+            "text": {
+                "tag": "lark_md",
+                "content": f"• **[{item['title']}]({item.get('link', '#')})**\n  📝 {item.get('summary', '')}{practice_str}"
+            }
+        })
+    elements.append({"tag": "hr"})
+
+    # 5. 财税数智化演进
+    elements.append({
+        "tag": "div",
+        "text": {"tag": "lark_md", "content": "**📊 5. 财税数智化与企业级应用演进**"}
+    })
+    for item in tax_items:
+        tax_str = f"\n  🎯 {item['tax_insight']}" if item.get("tax_insight") else ""
+        elements.append({
+            "tag": "div",
+            "text": {
+                "tag": "lark_md",
+                "content": f"• `[{item.get('tag', '财税前沿')}]` **[{item['title']}]({item.get('link', '#')})**\n  📝 {item.get('summary', '')}{tax_str}"
             }
         })
 
@@ -137,35 +175,62 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
 
     return {
         "header": {
-            "title": {"tag": "plain_text", "content": f"📡 技术脉搏研报 ({date_str})"},
+            "title": {"tag": "plain_text", "content": f"📡 技术脉搏全景研报 ({date_str})"},
             "template": "blue"
         },
         "elements": elements
     }
 
-def archive_to_assistant(ai_items: list, ontology_items: list, gh_items: list, date_str: str) -> str:
+def archive_to_assistant(ai_items: list, ontology_items: list, gh_items: list, prompt_items: list, tax_items: list, date_str: str, executive_summary: str = "") -> str:
     os.makedirs(ARCHIVE_DIR, exist_ok=True)
     filepath = os.path.join(ARCHIVE_DIR, f"{date_str}.md")
 
     with open(filepath, "w", encoding="utf-8") as f:
-        f.write(f"# 技术雷达简报 ({date_str})\n\n")
+        f.write(f"# 技术脉搏每日全景研报 ({date_str})\n\n")
         f.write("> **可信度**: 🟢 官方公开数据源 | **保密级别**: 🔓 可对外 | **更新日期**: " + date_str + "\n\n")
 
-        f.write("## 1. AI 前沿动态\n\n")
+        if executive_summary:
+            f.write("## 📌 今日脉搏全景速读与架构师建议\n\n")
+            f.write(executive_summary + "\n\n")
+
+        f.write("## 1. AI 战略与产业前沿\n\n")
         for item in ai_items:
             f.write(f"- **[{item['title']}]({item['link']})**\n")
-            f.write(f"  - 热度: {item.get('points')} 点赞 | 发布日期: {item.get('date')}\n\n")
+            f.write(f"  - 来源: {item.get('source')} | 关注度: {item.get('points')} | 日期: {item.get('date')}\n")
+            if item.get("takeaway"):
+                f.write(f"  - 💡 核心看点: {item['takeaway']}\n")
+                f.write(f"  - 🎯 行业影响: {item.get('impact')}\n\n")
 
-        f.write("## 2. 本体与知识工程前沿\n\n")
+        f.write("## 2. 本体论与知识工程深潜\n\n")
         for item in ontology_items:
             f.write(f"- **[{item['title']}]({item['link']})**\n")
             f.write(f"  - 作者: {', '.join(item.get('authors', []))} ({item.get('published')})\n")
-            f.write(f"  - 摘要: {item.get('summary')}\n\n")
+            f.write(f"  - 摘要: {item.get('summary')}\n")
+            if item.get("thesis"):
+                f.write(f"  - 🔬 学术主旨: {item['thesis']}\n")
+                f.write(f"  - 💡 业务本体落地启发: {item.get('inspiration')}\n\n")
 
-        f.write("## 3. GitHub 增长最快开源项目\n\n")
+        f.write("## 3. 智能体与开发者爆发新工具\n\n")
         for item in gh_items:
             f.write(f"- **[{item['name']}]({item['link']})** (⭐ {item.get('stars')} | 语言: {item.get('language')})\n")
-            f.write(f"  - 简介: {item.get('description')}\n\n")
+            f.write(f"  - 简介: {item.get('description')}\n")
+            if item.get("role"):
+                f.write(f"  - 🛠️ 工具定位: {item['role']}\n")
+                f.write(f"  - 🎯 落地参考: {item.get('practical_use')}\n\n")
+
+        f.write("## 4. 提示词工程与 Agent 实战技巧\n\n")
+        for item in prompt_items:
+            f.write(f"- **[{item['title']}]({item.get('link', '#')})**\n")
+            f.write(f"  - 描述: {item.get('summary')}\n")
+            if item.get("practice"):
+                f.write(f"  - 💡 实操心法: {item['practice']}\n\n")
+
+        f.write("## 5. 财税数智化与企业级应用演进\n\n")
+        for item in tax_items:
+            f.write(f"- **`[{item.get('tag', '财税前沿')}]` [{item['title']}]({item.get('link', '#')})**\n")
+            f.write(f"  - 摘要: {item.get('summary')}\n")
+            if item.get("tax_insight"):
+                f.write(f"  - 🎯 业财系统启示: {item['tax_insight']}\n\n")
 
     return filepath
 
@@ -202,18 +267,26 @@ def main():
     gh_items = fetch_github_trending()
     print(f"✓ 采集 GitHub 项目: {len(gh_items)} 条")
 
+    prompt_items = fetch_prompt_skills()
+    print(f"✓ 采集 Prompt/Skill 技巧: {len(prompt_items)} 条")
+
+    tax_items = fetch_tax_tech()
+    print(f"✓ 采集财税科技动态: {len(tax_items)} 条")
+
     # 深度语义与架构师落地启发注入（无 LLM 时基于自研启发式语义规则优雅自愈）
-    ai_items, ontology_items, gh_items, executive_summary = enrich_all(ai_items, ontology_items, gh_items)
+    ai_items, ontology_items, gh_items, prompt_items, tax_items, executive_summary = enrich_all(
+        ai_items, ontology_items, gh_items, prompt_items, tax_items
+    )
     print("✓ 架构师落地启发与今日速读已注入完毕")
 
     # 1. 沉淀至 05-助手 (Markdown 与 HTML 双版本)
-    archive_path = archive_to_assistant(ai_items, ontology_items, gh_items, date_str)
+    archive_path = archive_to_assistant(ai_items, ontology_items, gh_items, prompt_items, tax_items, date_str, executive_summary=executive_summary)
     html_path = os.path.join(ARCHIVE_DIR, f"{date_str}.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, html_path, executive_summary=executive_summary)
+    render_html(ai_items, ontology_items, gh_items, prompt_items, tax_items, date_str, html_path, executive_summary=executive_summary)
 
     # 同时生成 index.html（便于作为 Web 站点首页直接访问）
     index_html_path = os.path.join(os.path.dirname(__file__), "index.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path, executive_summary=executive_summary)
+    render_html(ai_items, ontology_items, gh_items, prompt_items, tax_items, date_str, index_html_path, executive_summary=executive_summary)
 
     print(f"✓ 简报已沉淀到助手知识库: {archive_path}")
     print(f"✓ HTML 页面已生成: {html_path}")
@@ -225,7 +298,10 @@ def main():
     # 2. 推送飞书个人单聊
     token = get_tenant_access_token(app_id, app_secret)
     if token and open_id:
-        card = build_card_content(ai_items, ontology_items, gh_items, date_str, web_url=web_url, executive_summary=executive_summary)
+        card = build_card_content(
+            ai_items, ontology_items, gh_items, prompt_items, tax_items,
+            date_str, web_url=web_url, executive_summary=executive_summary
+        )
         ok = send_to_user(token, open_id, card)
         if ok:
             print(f"✓ 已成功通过机器人直接推送至你的飞书！")

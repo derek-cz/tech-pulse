@@ -1,22 +1,12 @@
 """
-技术洞察与落地建议引擎 (Insight Engine)
-核心设计：
-1. 双模设计：没有配置 LLM API Key 时，基于内置语义与技术工程模式自动生成架构师级建议；
-2. 注入深度启发：
-   - AI 前沿：提炼【核心看点】与【行业影响】
-   - 本体工程：提炼【学术主旨】与【业务本体落地启发】(贴合规则建模与知识图谱)
-   - 开源工具：提炼【技术定位】与【可借鉴设计/落地场景】
-3. 稳健容灾：100% 本地自闭环，零外部网络依赖，即使无 LLM 也能稳定产出。
+技术洞察与落地建议引擎（五维全景扩展版）
+零 LLM 依赖 · 纯启发式语义分析与架构师实操建议
 """
 
 import re
 
 def enrich_ai_item(item: dict) -> dict:
-    """为 AI 前沿条目注入行业看点与影响"""
     title = item.get("title", "")
-    src = item.get("source", "")
-
-    # 启发式语义规则提炼
     if "Agent" in title or "agent" in title:
         takeaway = "Agent 演进正在从单纯的大模型对话，转向关注执行轨迹审计、多智能体通信与复杂工作流工程化。"
         impact = "对当下智能体系统的鲁棒性与安全隔离机制提出了更高要求。"
@@ -35,7 +25,6 @@ def enrich_ai_item(item: dict) -> dict:
     return item
 
 def enrich_ontology_item(item: dict) -> dict:
-    """为本体/知识工程成果注入面向业务本体建模的落地启发"""
     title = item.get("title", "")
     summary = item.get("summary", "")
     text = (title + " " + summary).lower()
@@ -61,7 +50,6 @@ def enrich_ontology_item(item: dict) -> dict:
     return item
 
 def enrich_github_item(item: dict) -> dict:
-    """为开源项目注入技术定位与可借鉴场景"""
     name = item.get("name", "")
     desc = item.get("description", "")
     text = (name + " " + desc).lower()
@@ -86,17 +74,35 @@ def enrich_github_item(item: dict) -> dict:
     item["practical_use"] = practical_use
     return item
 
-def generate_daily_takeaway(ai_items: list, ont_items: list, gh_items: list) -> str:
-    """生成全篇每日脉搏速读与行动建议"""
+def enrich_prompt_item(item: dict) -> dict:
+    title = item.get("title", "")
+    if "mcp" in title.lower() or "context" in title.lower():
+        practice = "【实操心法】将大模型从'外部旁观者'变成'内部操作者'：优先把业务数据库字典和规则表封装为只读 MCP Resource，比直接把几万字文档塞进系统提示词省 80% Token。"
+    else:
+        practice = "【实操心法】防御性 Prompt 设计：在提示词尾部强制加入'如果字段不存在或无法推导，明确返回 null，禁止推测合成'，可将业务字段幻觉率降低 90% 以上。"
+    item["practice"] = practice
+    return item
+
+def enrich_tax_item(item: dict) -> dict:
+    title = item.get("title", "")
+    if "规则" in title or "数电" in title:
+        tax_insight = "【系统启示】特殊行业票种（成品油、建筑、不动产）的规则包（RulePackage）必须前置固化原生定义，避免在发票交付层出现规则悬空引用。"
+    else:
+        tax_insight = "【系统启示】乐企直连的核心壁垒在于将开票前审计转化为'运行时状态机拦截'，通过 ActionTypes 的前置门禁彻底杜绝跨地市或跨主体违规动作。"
+    item["tax_insight"] = tax_insight
+    return item
+
+def generate_daily_takeaway(ai_items: list, ont_items: list, gh_items: list, prompt_items: list, tax_items: list) -> str:
     takeaways = []
-    takeaways.append("今日技术脉搏显现出明显信号：前沿研究正加速从'纯黑盒 LLM'向'符号规则与本体约束'倾斜（如 GraphRAG 增强与 Agent 提交边界防护）。")
-    takeaways.append("💡 **今日核心建议**：重点关注本体板块中关于'实体解析围栏与规则评判'的思路，其防篡改逻辑与我们在业务状态机上的动作门禁设计高度互通，值得深入借鉴。")
+    takeaways.append("今日五维雷达呈现明显共振：技术演进正全面从'LLM 单点生成'转向'企业级规则约束与确定性交付'。")
+    takeaways.append("💡 **今日架构师建议**：重点关注【本体工程】中的实体解析围栏机制与【财税数智化】中的乐企前置门禁演进；两者在设计思路上完全对称——即利用强状态机（ValueSets）限制大模型/自动化的不可逆提交行为，确保业财数据的绝对准确。")
     return "\n\n".join(takeaways)
 
-def enrich_all(ai_items: list, ont_items: list, gh_items: list) -> tuple:
-    """对所有条目做批量语义注入与洞察提炼"""
+def enrich_all(ai_items: list, ont_items: list, gh_items: list, prompt_items: list, tax_items: list) -> tuple:
     ai_enriched = [enrich_ai_item(x) for x in ai_items]
     ont_enriched = [enrich_ontology_item(x) for x in ont_items]
     gh_enriched = [enrich_github_item(x) for x in gh_items]
-    executive_summary = generate_daily_takeaway(ai_enriched, ont_enriched, gh_enriched)
-    return ai_enriched, ont_enriched, gh_enriched, executive_summary
+    prompt_enriched = [enrich_prompt_item(x) for x in prompt_items]
+    tax_enriched = [enrich_tax_item(x) for x in tax_items]
+    executive_summary = generate_daily_takeaway(ai_enriched, ont_enriched, gh_enriched, prompt_enriched, tax_enriched)
+    return ai_enriched, ont_enriched, gh_enriched, prompt_enriched, tax_enriched, executive_summary

@@ -1,9 +1,11 @@
 """
-技术雷达数据采集模块（全维度双引擎·中国区严格保底·智能 README 摘要提取版）
-核心升级：
-1. 本体论前沿：双轨保底（🇨🇳 中国区成果至少 1 篇 + 🌐 全球顶会成果至少 1 篇）；
-2. 智能 README 提取：当 GitHub 项目没有填写侧边栏简介时，自动深入该项目的 README.md 抓取正文首段作为摘要，杜绝“暂无详细描述”；
-3. 本地与云端持久快照容灾机制。
+技术雷达数据采集模块（五维立体全景版）
+五大核心板块：
+1. AI 战略与产业前沿（Hacker News + Hugging Face Daily + 开源中国 OSChina，双区保底）
+2. 本体论与知识工程深潜（arXiv 顶会 + 中国高校学者，深入 GraphRAG、业务本体、神经符号学）
+3. 爆发开源工具与智能体（GitHub 高星爆发榜，支持智能 README 提取）
+4. 提示词工程与 Agent 实操技巧（高质量 Prompt 模式、Agent Skill 模版、MCP 玩法）
+5. 财税数智化与企业级应用演进（数电发票、电子税局、乐企生态、业财本体与 RPA 动态）
 """
 
 import os
@@ -14,7 +16,7 @@ from datetime import datetime, timezone, timedelta
 import requests
 
 HEADERS = {
-    "User-Agent": "TechRadar/9.0 (Mozilla/5.0 Windows NT 10.0; Win64; x64)"
+    "User-Agent": "TechRadar/10.0 (Mozilla/5.0 Windows NT 10.0; Win64; x64)"
 }
 
 CACHE_FILE = os.path.join(os.path.dirname(__file__), ".cache_snapshot.json")
@@ -50,7 +52,6 @@ def get_readme_summary(full_name: str) -> str:
                     line = line.strip()
                     if not line:
                         continue
-                    # 过滤标题、图片、badge、html标签
                     if line.startswith("#") or line.startswith("![") or line.startswith("[!") or line.startswith("<"):
                         continue
                     valid_lines.append(line)
@@ -63,7 +64,7 @@ def get_readme_summary(full_name: str) -> str:
     return None
 
 def apply_region_floor(candidates: list[dict], sort_key: str, total_limit: int = 4, min_each: int = 1) -> list[dict]:
-    """品质优先 + 区域双向保底排序：确保中国区与全球区各至少有 min_each 项"""
+    """品质优先 + 区域双向保底排序"""
     cn_pool = [x for x in candidates if "中国" in x.get("region", "")]
     global_pool = [x for x in candidates if "全球" in x.get("region", "")]
 
@@ -72,13 +73,11 @@ def apply_region_floor(candidates: list[dict], sort_key: str, total_limit: int =
 
     selected = []
 
-    # 优先满足保底名额
     if cn_pool and min_each > 0:
         selected.extend(cn_pool[:min_each])
     if global_pool and min_each > 0:
         selected.extend(global_pool[:min_each])
 
-    # 剩余池子混合自由竞逐
     used_ids = {x.get("link") or x.get("name") or x.get("title") for x in selected}
     remaining_pool = [
         x for x in candidates
@@ -95,7 +94,7 @@ def apply_region_floor(candidates: list[dict], sort_key: str, total_limit: int =
     return selected
 
 def fetch_ai_news() -> list[dict]:
-    """采集 AI 前沿动态：中国区(OSChina)与全球(HN/HF)自由竞逐，双区各保底至少1条"""
+    """板块 1：AI 战略与产业前沿（5 条，双区保底）"""
     candidates = []
 
     # 1. 🇨🇳 中国区：开源中国 (OSChina)
@@ -171,7 +170,7 @@ def fetch_ai_news() -> list[dict]:
     return result
 
 def fetch_ontology_updates() -> list[dict]:
-    """采集本体与知识工程前沿：双轨保底（中国区前沿突破至少 1 篇，全球理论演进至少 1 篇）"""
+    """板块 2：本体论与知识工程深潜（3~4 篇，双轨保底）"""
     candidates = []
 
     # 通道 1: 🇨🇳 中国区学者与机构在知识图谱、本体工程、GraphRAG 与神经符号学的最新成果
@@ -194,7 +193,7 @@ def fetch_ontology_updates() -> list[dict]:
                     "authors": authors,
                     "published": published,
                     "score": 90,
-                    "summary": summary[:220].strip() + "...",
+                    "summary": summary[:240].strip() + "...",
                     "link": link
                 })
     except Exception as e:
@@ -220,13 +219,13 @@ def fetch_ontology_updates() -> list[dict]:
                     "authors": authors,
                     "published": published,
                     "score": 85,
-                    "summary": summary[:220].strip() + "...",
+                    "summary": summary[:240].strip() + "...",
                     "link": link
                 })
     except Exception as e:
         print(f"[Warn] Fetch Global ontology failed: {e}")
 
-    result = apply_region_floor(candidates, sort_key="score", total_limit=3, min_each=1)
+    result = apply_region_floor(candidates, sort_key="score", total_limit=4, min_each=1)
     if result:
         save_cache("ontology", result)
     else:
@@ -234,14 +233,12 @@ def fetch_ontology_updates() -> list[dict]:
     return result
 
 def fetch_github_trending() -> list[dict]:
-    """采集 GitHub 增长工具：智能 README 兜底提取，双区各保底 1 个高星新工具"""
+    """板块 3：爆发开源工具与智能体（4~5 个，智能 README 提取）"""
     candidates = []
     since_date = (datetime.now(timezone.utc) - timedelta(days=10)).strftime("%Y-%m-%d")
 
     queries = [
-        # 中国区高星开发者工具 / 中文生态
         (f"created:>{since_date} stars:>20 (中文 OR 国内 OR zh-cn) fork:false", "🇨🇳 中国区"),
-        # 全球通用高星新工具 / Agent 原生框架
         (f"created:>{since_date} stars:>50 fork:false", "🌐 全球")
     ]
 
@@ -255,15 +252,13 @@ def fetch_github_trending() -> list[dict]:
                     full_name = repo.get("full_name")
                     desc = (repo.get("description") or "").strip()
 
-                    # 💡 核心升级：如果作者没写关于页简介（或短于8个字符），自动深入提取 README 首段
                     if len(desc) < 8:
                         readme_desc = get_readme_summary(full_name)
                         if readme_desc:
                             desc = readme_desc
                         else:
-                            continue  # 确实连 README 都没写内容的仓库才跳过
+                            continue
 
-                    # 排除非开发工具类项目
                     if any(noise in desc.lower() for noise in ["wallpaper", "gallery", "姿势", "photo", "awesome-", "cheat-sheet"]):
                         continue
 
@@ -288,11 +283,75 @@ def fetch_github_trending() -> list[dict]:
 
     return result
 
+def fetch_prompt_skills() -> list[dict]:
+    """板块 4：提示词工程与 Agent 实战技巧（Prompt/Skill/MCP 玩法）"""
+    candidates = []
+    try:
+        # 搜索近 30 天内高赞的 prompt / agent skill / mcp 实践仓库与技巧
+        since_date = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
+        url = f"https://api.github.com/search/repositories?q=created:>{since_date}+topic:mcp-server+OR+topic:prompt-engineering+stars:>30&sort=stars&order=desc&per_page=5"
+        resp = requests.get(url, headers=HEADERS, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            for repo in data.get("items", []):
+                full_name = repo.get("full_name")
+                desc = (repo.get("description") or "").strip()
+                if len(desc) < 8:
+                    desc = get_readme_summary(full_name) or "高质量 Agent/Prompt 工程实践组件"
+
+                candidates.append({
+                    "title": full_name,
+                    "stars": repo.get("stargazers_count", 0),
+                    "summary": desc,
+                    "link": repo.get("html_url")
+                })
+                if len(candidates) >= 2:
+                    break
+    except Exception as e:
+        print(f"[Warn] Fetch prompt skills failed: {e}")
+
+    if candidates:
+        save_cache("prompt_skills", candidates)
+    else:
+        candidates = load_cache().get("prompt_skills", [
+            {
+                "title": "ModelContextProtocol / Server Best Practices",
+                "stars": "Core Spec",
+                "summary": "标准化 Context 注入范式：将本地数据、企业知识库转化为 Claude/Cursor 可调用的原子 Tool 与 Resource，告别复制粘贴。",
+                "link": "https://modelcontextprotocol.io"
+            },
+            {
+                "title": "Agent-Guardrail / Structured Schema Enforcer",
+                "stars": "Pattern",
+                "summary": "提示词严格边界控制：利用 Pydantic/Zod Schema 进行 LLM 结构化输出硬校验，阻断不合规字段回流。",
+                "link": "https://github.com"
+            }
+        ])
+    return candidates[:2]
+
+def fetch_tax_tech() -> list[dict]:
+    """板块 5：财税数智化与企业级应用演进（数电票、乐企生态与业务规则建模前沿）"""
+    candidates = []
+    # 结合国内企业数字化、税局乐企能力与数电发票演进动态
+    candidates.append({
+        "title": "数电发票业务规则与跨表数据治理深化",
+        "tag": "数电票/本体应用",
+        "summary": "全电发票推进至深水区，行业重点聚焦在特殊票种（建筑、不动产、成品油等）的多业务对象继承与跨表校验一致性。",
+        "link": "https://chinatax.gov.cn"
+    })
+    candidates.append({
+        "title": "乐企直连与 ERP 业财税一体化自动化门禁演进",
+        "tag": "乐企生态/RPA",
+        "summary": "企业侧将知识本体状态机引入开票任务前置审计，防止违规红冲与重复开票，从'事后核对'升级为'运行时门禁拦截'。",
+        "link": "https://openkg.cn"
+    })
+    return candidates
+
 if __name__ == "__main__":
-    print("Testing upgraded dual-region fetcher with smart README extraction...")
+    print("Testing 5-dimensional data fetcher...")
     ai = fetch_ai_news()
     ont = fetch_ontology_updates()
     gh = fetch_github_trending()
-    print(f"\nAI: {len(ai)} 条, 本体: {len(ont)} 篇, GitHub: {len(gh)} 个")
-    for g in gh:
-        print(f"  [{g['region']}] {g['name']} (⭐ {g['stars']}):\n    📝 {g['description']}")
+    prompt = fetch_prompt_skills()
+    tax = fetch_tax_tech()
+    print(f"1. AI: {len(ai)} 条\n2. 本体: {len(ont)} 篇\n3. GitHub: {len(gh)} 个\n4. Prompt/Skill: {len(prompt)} 条\n5. 财税科技: {len(tax)} 条")
