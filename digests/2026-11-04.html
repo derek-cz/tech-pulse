@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技术雷达日报 · 2026-11-04</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --accent: #0ea5e9;
+      --tag-ai: #dbeafe;
+      --tag-ai-text: #1d4ed8;
+      --tag-ont: #f3e8ff;
+      --tag-ont-text: #7e22ce;
+      --tag-gh: #dcfce7;
+      --tag-gh-text: #15803d;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #090d16;
+        --card-bg: #131b2e;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #1e293b;
+        --primary: #3b82f6;
+        --primary-light: #1e293b;
+        --accent: #38bdf8;
+        --tag-ai: #1e293b;
+        --tag-ai-text: #60a5fa;
+        --tag-ont: #2e1065;
+        --tag-ont-text: #c084fc;
+        --tag-gh: #064e3b;
+        --tag-gh-text: #4ade80;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+    .header-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 36px 0 18px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 640px) {
+      .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
+    }
+    .card-top {
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .badge-ai { background: var(--tag-ai); color: var(--tag-ai-text); }
+    .badge-ont { background: var(--tag-ont); color: var(--tag-ont-text); }
+    .badge-gh { background: var(--tag-gh); color: var(--tag-gh-text); }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      line-height: 1.4;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .card-title:hover {
+      color: var(--primary);
+    }
+    .card-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-badge">Daily Intelligence Radar</div>
+      <h1>技术雷达简报</h1>
+      <div class="meta">更新时间：2026-11-04 · 自动化采集自 Hacker News / arXiv / GitHub</div>
+    </header>
+
+    <!-- 1. AI 前沿 -->
+    <div class="section-title">🔥 1. AI 前沿动态</div>
+    <div class="grid grid-2">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hacker News</span></div>
+            <a href="https://momentic.ai/" target="_blank" class="card-title">Launch HN: Momentic (YC W24) – Agents that catch bugs by using your app</a>
+          </div>
+          <div class="card-footer">
+            <span>关注度: 159</span>
+            <a href="https://momentic.ai/" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
+            <a href="https://huggingface.co/papers/2611.05255" target="_blank" class="card-title">Going Deeper With Memories</a>
+          </div>
+          <div class="card-footer">
+            <span>关注度: 10</span>
+            <a href="https://huggingface.co/papers/2611.05255" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
+            <a href="https://huggingface.co/papers/2611.05163" target="_blank" class="card-title">RoboTryOn: Synthesizing Dexterous Robot Demonstrations from Human Videos via Virtual Try-On</a>
+          </div>
+          <div class="card-footer">
+            <span>关注度: 10</span>
+            <a href="https://huggingface.co/papers/2611.05163" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ai">开源中国 OSChina</span></div>
+            <a href="https://www.oschina.net/news/503380" target="_blank" class="card-title">Skyeye 云企业级AI+零代码智能制造系统-AI应用 - v4.1.10发布</a>
+          </div>
+          <div class="card-footer">
+            <span>关注度: 热点</span>
+            <a href="https://www.oschina.net/news/503380" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ai">开源中国 OSChina</span></div>
+            <a href="https://www.oschina.net/news/503374" target="_blank" class="card-title">AI 训练 AI！百度首次披露 Apollo World 世界模型，让无人驾驶突破“不可能三角”</a>
+          </div>
+          <div class="card-footer">
+            <span>关注度: 热点</span>
+            <a href="https://www.oschina.net/news/503374" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <!-- 2. 本体与知识工程 -->
+    <div class="section-title">🧩 2. 本体与知识工程前沿</div>
+    <div class="grid">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="http://arxiv.org/abs/2609.25712v1" target="_blank" class="card-title">TCMaster: Confidence-Aware Querying and Workload-Guided Physical Design for Multi-Source Traditional Chinese Medicine Knowledge Graphs</a>
+            <div class="card-desc">Multi-source knowledge graphs (KGs) need query mechanisms that expose reliability and exploit domain structure. This paper presents TCMaster, a property-graph query substrate for confidence-aware traversal and workload-g...</div>
+          </div>
+          <div class="card-footer">
+            <span>作者: Zheng Chen, Yuzhu Li (2026-09-22)</span>
+            <a href="http://arxiv.org/abs/2609.25712v1" target="_blank" class="btn">论文直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="http://arxiv.org/abs/2609.05139v1" target="_blank" class="card-title">NS-ST-GraphRAG: Neuro-Symbolic Spatio-Temporal GraphRAG for Literary Knowledge Processing</a>
+            <div class="card-desc">Long-form literary narratives pose a distinctive information-processing challenge for retrieval-augmented generation: relevant evidence is distributed across chapters, relations evolve over narrative time, and correct an...</div>
+          </div>
+          <div class="card-footer">
+            <span>作者: Zheng Kui Lin (2026-09-04)</span>
+            <a href="http://arxiv.org/abs/2609.05139v1" target="_blank" class="btn">论文直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="http://arxiv.org/abs/2611.03641v1" target="_blank" class="card-title">From Natural Language to Exact Cover: A Neuro-Symbolic Approach to Zebra Puzzles</a>
+            <div class="card-desc">Chain-of-Thought (CoT) generation has substantially improved the performance of Large Language Models (LLMs) on complex reasoning tasks, including code generation, data analysis, and exam-style question answering. Despit...</div>
+          </div>
+          <div class="card-footer">
+            <span>作者: Paulius Skaisgiris, Thomas Pammer (2026-11-02)</span>
+            <a href="http://arxiv.org/abs/2611.03641v1" target="_blank" class="btn">论文直达 &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <!-- 3. GitHub 增长工具 -->
+    <div class="section-title">⚡ 3. GitHub 增长最快开源项目</div>
+    <div class="grid grid-2">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 17568 · TypeScript</span></div>
+            <a href="https://github.com/deepseek-ai/dsh-superagent-prototype" target="_blank" class="card-title">deepseek-ai/dsh-superagent-prototype</a>
+            <div class="card-desc">Towards a More Autonomous Agent System</div>
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/deepseek-ai/dsh-superagent-prototype" target="_blank" class="btn">GitHub 仓库 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 9231 · Rust</span></div>
+            <a href="https://github.com/storytold/craft-anything" target="_blank" class="card-title">storytold/craft-anything</a>
+            <div class="card-desc">Craft Anything: understand how any software works, and craft your own.</div>
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/storytold/craft-anything" target="_blank" class="btn">GitHub 仓库 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 7757 · JavaScript</span></div>
+            <a href="https://github.com/heydamir/unslop" target="_blank" class="card-title">heydamir/unslop</a>
+            <div class="card-desc">A Claude skill that turns vibecoded, AI-looking UI into a designed interface</div>
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/heydamir/unslop" target="_blank" class="btn">GitHub 仓库 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-gh">⭐ 3298 · Python</span></div>
+            <a href="https://github.com/BryceYuuu/RUN" target="_blank" class="card-title">BryceYuuu/RUN</a>
+            <div class="card-desc">RUN · 润：海外移居手册（欧洲 36 国 · 110 条路线 · 主要移民地区）</div>
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/BryceYuuu/RUN" target="_blank" class="btn">GitHub 仓库 &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <footer>
+      <p>由 Tech-Radar 自动化引擎生成 · 数据沉淀于 05-助手 知识库</p>
+    </footer>
+  </div>
+</body>
+</html>
