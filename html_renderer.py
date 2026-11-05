@@ -1,5 +1,9 @@
 """
-HTML 生成器（五维全景研报版）：支持顶部快捷导航、架构师速读、Prompt心法与财税前沿
+HTML 生成器（原生三大核心板块·精细研报版）
+板块严格对齐：
+1. AI 最新消息
+2. 本体最新消息
+3. Git 增长最快的工具
 """
 
 import os
@@ -10,7 +14,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>技术脉搏每日全景研报 · {date_str}</title>
+  <title>技术脉搏研报 · {date_str}</title>
   <style>
     :root {{
       --bg: #f8fafc;
@@ -30,10 +34,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       --tag-ont-text: #7e22ce;
       --tag-gh: #dcfce7;
       --tag-gh-text: #15803d;
-      --tag-prompt: #fef3c7;
-      --tag-prompt-text: #b45309;
-      --tag-tax: #e0e7ff;
-      --tag-tax-text: #4338ca;
       --insight-bg: #f8fafc;
       --insight-border: #e2e8f0;
     }}
@@ -56,10 +56,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         --tag-ont-text: #c084fc;
         --tag-gh: #064e3b;
         --tag-gh-text: #4ade80;
-        --tag-prompt: #451a03;
-        --tag-prompt-text: #fcd34d;
-        --tag-tax: #1e1b4b;
-        --tag-tax-text: #a5b4fc;
         --insight-bg: #0d1527;
         --insight-border: #1e293b;
       }}
@@ -105,7 +101,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .nav-bar {{
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 24px;
       padding-bottom: 16px;
       border-bottom: 1px solid var(--border);
@@ -113,7 +109,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .nav-item {{
       font-size: 13px;
       font-weight: 600;
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 8px;
       background: var(--card-bg);
       border: 1px solid var(--border);
@@ -186,8 +182,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .badge-ai {{ background: var(--tag-ai); color: var(--tag-ai-text); }}
     .badge-ont {{ background: var(--tag-ont); color: var(--tag-ont-text); }}
     .badge-gh {{ background: var(--tag-gh); color: var(--tag-gh-text); }}
-    .badge-prompt {{ background: var(--tag-prompt); color: var(--tag-prompt-text); }}
-    .badge-tax {{ background: var(--tag-tax); color: var(--tag-tax-text); }}
     .card-title {{
       font-size: 17px;
       font-weight: 700;
@@ -255,65 +249,51 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <body>
   <div class="container">
     <header>
-      <div class="header-badge">Daily Tech Intelligence · 5D Edition</div>
-      <h1>技术脉搏每日全景研报</h1>
-      <div class="meta">更新时间：{date_str} · 五维自动化雷达 · 架构师落地实战提炼</div>
+      <div class="header-badge">Daily Tech Intelligence · Core Radar</div>
+      <h1>技术脉搏每日研报</h1>
+      <div class="meta">更新时间：{date_str} · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
 
       <!-- 快捷导航 -->
       <div class="nav-bar">
-        <a href="#sec-ai" class="nav-item">🔥 AI 产业前沿</a>
-        <a href="#sec-ont" class="nav-item">🧩 本体论与知识工程</a>
-        <a href="#sec-gh" class="nav-item">🛠️ 爆发开源工具</a>
-        <a href="#sec-prompt" class="nav-item">💡 Prompt & Agent实操</a>
-        <a href="#sec-tax" class="nav-item">📊 财税数智化与企业级演进</a>
+        <a href="#sec-ai" class="nav-item">🔥 1. AI 最新消息</a>
+        <a href="#sec-ont" class="nav-item">🧩 2. 本体最新消息</a>
+        <a href="#sec-gh" class="nav-item">⚡ 3. Git 增长最快工具</a>
       </div>
 
-      <!-- 每日宏观速读与建议 -->
+      <!-- 每日速读与建议 -->
       <div class="summary-card">
-        <div class="summary-title">📌 今日脉搏全景速读与架构师建议</div>
+        <div class="summary-title">📌 今日脉搏核心速读与架构师建议</div>
         <div>{executive_summary}</div>
       </div>
     </header>
 
-    <!-- 1. AI 前沿 -->
-    <div id="sec-ai" class="section-title">🔥 1. AI 战略与产业前沿</div>
+    <!-- 1. AI 最新消息 -->
+    <div id="sec-ai" class="section-title">🔥 1. AI 最新消息</div>
     <div class="grid">
       {ai_cards}
     </div>
 
-    <!-- 2. 本体与知识工程 -->
-    <div id="sec-ont" class="section-title">🧩 2. 本体论与知识工程深潜</div>
+    <!-- 2. 本体最新消息 -->
+    <div id="sec-ont" class="section-title">🧩 2. 本体最新消息</div>
     <div class="grid">
       {ontology_cards}
     </div>
 
-    <!-- 3. GitHub 增长工具 -->
-    <div id="sec-gh" class="section-title">🛠️ 3. 智能体与开发者爆发新工具</div>
+    <!-- 3. Git 增长工具 -->
+    <div id="sec-gh" class="section-title">⚡ 3. Git 增长最快的工具</div>
     <div class="grid">
       {github_cards}
     </div>
 
-    <!-- 4. Prompt 与 Agent 实战 -->
-    <div id="sec-prompt" class="section-title">💡 4. 提示词工程与 Agent 实战技巧</div>
-    <div class="grid">
-      {prompt_cards}
-    </div>
-
-    <!-- 5. 财税数智化与企业应用 -->
-    <div id="sec-tax" class="section-title">📊 5. 财税数智化与企业级应用演进</div>
-    <div class="grid">
-      {tax_cards}
-    </div>
-
     <footer>
-      <p>由 Tech-Pulse 五维全景引擎生成 · 自动沉淀于 05-助手 知识库</p>
+      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 所有链接经真实性与直达性严格校验</p>
     </footer>
   </div>
 </body>
 </html>
 """
 
-def render_html(ai_items: list, ontology_items: list, gh_items: list, prompt_items: list, tax_items: list, date_str: str, output_path: str, executive_summary: str = ""):
+def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: str, output_path: str, executive_summary: str = ""):
     # 1. 渲染 AI 卡片
     ai_cards = ""
     for item in ai_items:
@@ -356,7 +336,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, prompt_ite
             insight_block = f"""
             <div class="insight-box" style="border-left-color: #9333ea;">
               <div class="insight-line"><span class="insight-label" style="color: #9333ea;">🔬 学术主旨:</span>{item['thesis']}</div>
-              <div class="insight-line"><span class="insight-label" style="color: #9333ea;">💡 落地启发:</span>{item.get('inspiration', '')}</div>
+              <div class="insight-line"><span class="insight-label" style="color: #9333ea;">💡 业务本体落地启发:</span>{item.get('inspiration', '')}</div>
             </div>
             """
 
@@ -370,7 +350,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, prompt_ite
           </div>
           <div class="card-footer">
             <span>作者: {authors} ({item.get('published', '')})</span>
-            <a href="{item['link']}" target="_blank" class="btn">论文直达 &rarr;</a>
+            <a href="{item['link']}" target="_blank" class="btn">论文直达 (HTTPS) &rarr;</a>
           </div>
         </div>
         """
@@ -400,47 +380,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, prompt_ite
           </div>
           <div class="card-footer">
             <span>开源项目</span>
-            <a href="{item['link']}" target="_blank" class="btn">GitHub 仓库 &rarr;</a>
-          </div>
-        </div>
-        """
-
-    # 4. 渲染 Prompt 与 Agent 技巧卡片
-    prompt_cards = ""
-    for item in prompt_items:
-        prompt_cards += f"""
-        <div class="card">
-          <div class="card-top">
-            <div><span class="badge badge-prompt">Prompt / MCP 最佳范式</span></div>
-            <a href="{item.get('link', '#')}" target="_blank" class="card-title">{item['title']}</a>
-            <div class="card-desc">{item.get('summary', '')}</div>
-            <div class="insight-box" style="border-left-color: #d97706;">
-              <div class="insight-line"><span class="insight-label" style="color: #d97706;">💡 实战心法:</span>{item.get('practice', '')}</div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span>工程规范与心法</span>
-            <a href="{item.get('link', '#')}" target="_blank" class="btn">参考范式 &rarr;</a>
-          </div>
-        </div>
-        """
-
-    # 5. 渲染财税与企业数智化卡片
-    tax_cards = ""
-    for item in tax_items:
-        tax_cards += f"""
-        <div class="card">
-          <div class="card-top">
-            <div><span class="badge badge-tax">{item.get('tag', '财税数智化')}</span></div>
-            <a href="{item.get('link', '#')}" target="_blank" class="card-title">{item['title']}</a>
-            <div class="card-desc">{item.get('summary', '')}</div>
-            <div class="insight-box" style="border-left-color: #4f46e5;">
-              <div class="insight-line"><span class="insight-label" style="color: #4f46e5;">🎯 业财系统启示:</span>{item.get('tax_insight', '')}</div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span>行业与系统演进</span>
-            <a href="{item.get('link', '#')}" target="_blank" class="btn">行业溯源 &rarr;</a>
+            <a href="{item['link']}" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
           </div>
         </div>
         """
@@ -450,9 +390,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, prompt_ite
         executive_summary=executive_summary.replace("\n", "<br>"),
         ai_cards=ai_cards,
         ontology_cards=ont_cards,
-        github_cards=gh_cards,
-        prompt_cards=prompt_cards,
-        tax_cards=tax_cards
+        github_cards=gh_cards
     )
 
     with open(output_path, "w", encoding="utf-8") as f:
