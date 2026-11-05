@@ -85,8 +85,50 @@
     .meta {
       color: var(--muted);
       font-size: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
+
+    /* 历史归档切换条 */
+    .archive-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .archive-label {
+      font-weight: 700;
+      color: var(--muted);
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .archive-link {
+      text-decoration: none;
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .archive-link:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .archive-link.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
     .nav-bar {
       display: flex;
       flex-wrap: wrap;
@@ -240,7 +282,17 @@
     <header>
       <div class="header-badge">Daily Tech Intelligence · Core Radar</div>
       <h1>技术脉搏每日研报</h1>
-      <div class="meta">更新时间：2026-11-05 · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
+      <div class="meta">报告日期：2026-11-05 · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
+
+      <!-- 往期研报历史切换栏 -->
+      <div class="archive-bar">
+        <span class="archive-label">📅 往期翻阅:</span>
+        <a href="digests/2026-11-05.html" class="archive-link active">2026-11-05 (最新)</a>
+<a href="digests/2026-11-04.html" class="archive-link">2026-11-04</a>
+<a href="digests/2026-11-03.html" class="archive-link">2026-11-03</a>
+<a href="digests/2026-11-02.html" class="archive-link">2026-11-02</a>
+
+      </div>
 
       <!-- 快捷导航 -->
       <div class="nav-bar">
@@ -297,7 +349,7 @@
         <div class="card">
           <div class="card-top">
             <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
-            <a href="https://huggingface.co/papers/2611.06483" target="_blank" class="card-title">What Does Multi-Turn Reinforcement Learning Really Improve in LLM Agents?</a>
+            <a href="https://huggingface.co/papers/2610.41432" target="_blank" class="card-title">Hybrid Computer Use: A Unified Programmatic, Semantic, and Visual Interface for General Agents</a>
             
             <div class="insight-box">
               <div class="insight-line"><span class="insight-label" style="color: var(--primary);">💡 核心看点:</span>Agent 演进正在从单纯的大模型对话，转向关注执行轨迹审计、物理实验评测与复杂长链路工作流工程化。</div>
@@ -306,15 +358,15 @@
             
           </div>
           <div class="card-footer">
-            <span>关注度: 10 · 日期: 2026-11-04</span>
-            <a href="https://huggingface.co/papers/2611.06483" target="_blank" class="btn">阅读原文 &rarr;</a>
+            <span>关注度: 10 · 日期: 2026-10-30</span>
+            <a href="https://huggingface.co/papers/2610.41432" target="_blank" class="btn">阅读原文 &rarr;</a>
           </div>
         </div>
         
         <div class="card">
           <div class="card-top">
             <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
-            <a href="https://huggingface.co/papers/2611.06728" target="_blank" class="card-title">Turns Matter: Advancing Streaming Video RL via Turn-Level Credit</a>
+            <a href="https://huggingface.co/papers/2611.06768" target="_blank" class="card-title">PyRUA-REAL: Robot Exploration and Adaptive Learning through RSI in the Real World</a>
             
             <div class="insight-box">
               <div class="insight-line"><span class="insight-label" style="color: var(--primary);">💡 核心看点:</span>展示了 AI 在特定垂直工程场景的技术突破与架构实践。</div>
@@ -324,7 +376,7 @@
           </div>
           <div class="card-footer">
             <span>关注度: 10 · 日期: 2026-11-04</span>
-            <a href="https://huggingface.co/papers/2611.06728" target="_blank" class="btn">阅读原文 &rarr;</a>
+            <a href="https://huggingface.co/papers/2611.06768" target="_blank" class="btn">阅读原文 &rarr;</a>
           </div>
         </div>
         
@@ -431,7 +483,7 @@
       
         <div class="card">
           <div class="card-top">
-            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 18918 · TypeScript</span></div>
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 19074 · TypeScript</span></div>
             <a href="https://github.com/deepseek-ai/dsh-superagent-prototype" target="_blank" class="card-title">deepseek-ai/dsh-superagent-prototype</a>
             <div class="card-desc">Towards a More Autonomous Agent System</div>
             
@@ -449,7 +501,7 @@
         
         <div class="card">
           <div class="card-top">
-            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 13021 · Rust</span></div>
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 13410 · Rust</span></div>
             <a href="https://github.com/storytold/craft-anything" target="_blank" class="card-title">storytold/craft-anything</a>
             <div class="card-desc">Craft Anything: understand how any software works, and craft your own.</div>
             
@@ -467,7 +519,7 @@
         
         <div class="card">
           <div class="card-top">
-            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 8936 · JavaScript</span></div>
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 9023 · JavaScript</span></div>
             <a href="https://github.com/heydamir/unslop" target="_blank" class="card-title">heydamir/unslop</a>
             <div class="card-desc">A Claude skill that turns vibecoded, AI-looking UI into a designed interface</div>
             
@@ -485,7 +537,7 @@
         
         <div class="card">
           <div class="card-top">
-            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 6819 · Kotlin</span></div>
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 6876 · Kotlin</span></div>
             <a href="https://github.com/wangzan101/Mika" target="_blank" class="card-title">wangzan101/Mika</a>
             <div class="card-desc">An on-device AI agent for Android that operates apps and the web to get things done for you.</div>
             
@@ -522,7 +574,7 @@
     </div>
 
     <footer>
-      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 所有链接经真实性与直达性严格校验</p>
+      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 支持往期历史全量回溯</p>
     </footer>
   </div>
 </body>
