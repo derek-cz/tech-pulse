@@ -1,12 +1,13 @@
 """
-HTML 生成器（原生三大核心板块·精细研报版）
-板块严格对齐：
-1. AI 最新消息
-2. 本体最新消息
-3. Git 增长最快的工具
+HTML 生成器（原生三大核心板块·带完整历史归档与日期切换栏版）
+特性：
+1. 顶部历史研报快速切换条（支持按日期翻阅过往简报）；
+2. 保持原生三大核心板块：AI 最新消息、本体最新消息、Git 增长最快工具；
+3. 严格真实活链校验。
 """
 
 import os
+import glob
 from datetime import datetime
 
 HTML_TEMPLATE = """<!DOCTYPE html>
@@ -96,8 +97,50 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .meta {{
       color: var(--muted);
       font-size: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }}
+
+    /* 历史归档切换条 */
+    .archive-bar {{
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }}
+    .archive-label {{
+      font-weight: 700;
+      color: var(--muted);
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }}
+    .archive-link {{
+      text-decoration: none;
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }}
+    .archive-link:hover {{
+      border-color: var(--primary);
+      color: var(--primary);
+    }}
+    .archive-link.active {{
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }}
+
     .nav-bar {{
       display: flex;
       flex-wrap: wrap;
@@ -251,7 +294,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <header>
       <div class="header-badge">Daily Tech Intelligence · Core Radar</div>
       <h1>技术脉搏每日研报</h1>
-      <div class="meta">更新时间：{date_str} · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
+      <div class="meta">报告日期：{date_str} · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
+
+      <!-- 往期研报历史切换栏 -->
+      <div class="archive-bar">
+        <span class="archive-label">📅 往期翻阅:</span>
+        {archive_links}
+      </div>
 
       <!-- 快捷导航 -->
       <div class="nav-bar">
@@ -286,14 +335,50 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
 
     <footer>
-      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 所有链接经真实性与直达性严格校验</p>
+      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 支持往期历史全量回溯</p>
     </footer>
   </div>
 </body>
 </html>
 """
 
-def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: str, output_path: str, executive_summary: str = ""):
+def get_history_dates(digests_dir: str) -> list[str]:
+    """扫描 digests 目录中所有的历史报告日期"""
+    dates = []
+    if os.path.exists(digests_dir):
+        files = glob.glob(os.path.join(digests_dir, "*.html"))
+        for f in files:
+            basename = os.path.basename(f)
+            # 匹配 YYYY-MM-DD.html
+            name_part = os.path.splitext(basename)[0]
+            if len(name_part) == 10 and name_part.count("-") == 2:
+                dates.append(name_part)
+    dates.sort(reverse=True)
+    return dates
+
+def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: str, output_path: str, executive_summary: str = "", digests_dir: str = None, is_root: bool = False):
+    # 构建历史日期切换按钮
+    archive_links = ""
+    history_dates = get_history_dates(digests_dir) if digests_dir else []
+
+    # 如果当前日期不在历史列表中，追加进去
+    if date_str not in history_dates:
+        history_dates.insert(0, date_str)
+        history_dates.sort(reverse=True)
+
+    for d in history_dates[:8]:  # 展示最近 8 期快速切换
+        is_active = (d == date_str)
+        active_cls = " active" if is_active else ""
+
+        # 判断链接相对路径（如果是 index.html，路径是 digests/YYYY-MM-DD.html；如果在 digests/ 目录下，路径是 ./YYYY-MM-DD.html）
+        if is_root:
+            link_href = f"digests/{d}.html"
+        else:
+            link_href = f"{d}.html"
+
+        display_name = f"{d} (最新)" if d == history_dates[0] else d
+        archive_links += f'<a href="{link_href}" class="archive-link{active_cls}">{display_name}</a>\n'
+
     # 1. 渲染 AI 卡片
     ai_cards = ""
     for item in ai_items:
@@ -388,6 +473,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: 
     html_content = HTML_TEMPLATE.format(
         date_str=date_str,
         executive_summary=executive_summary.replace("\n", "<br>"),
+        archive_links=archive_links,
         ai_cards=ai_cards,
         ontology_cards=ont_cards,
         github_cards=gh_cards

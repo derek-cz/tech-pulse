@@ -47,7 +47,7 @@ def get_tenant_access_token(app_id: str, app_secret: str) -> str:
 def build_card_content(ai_items: list, ontology_items: list, gh_items: list, date_str: str, web_url: str = None, executive_summary: str = "") -> dict:
     elements = []
 
-    # 快捷直达按钮区（置顶）
+    # 快捷直达按钮区（置顶支持今日与往期归档）
     if web_url:
         elements.append({
             "tag": "action",
@@ -56,10 +56,19 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
                     "tag": "button",
                     "text": {
                         "tag": "plain_text",
-                        "content": "🌐 在浏览器中打开今日完整版 HTML (图文研报)"
+                        "content": "🌐 打开今日研报 (完整版)"
                     },
                     "type": "primary",
                     "url": web_url
+                },
+                {
+                    "tag": "button",
+                    "text": {
+                        "tag": "plain_text",
+                        "content": "📚 翻阅往期合订本"
+                    },
+                    "type": "default",
+                    "url": web_url.rstrip("/") + "/#sec-ai"
                 }
             ]
         })
@@ -229,11 +238,12 @@ def main():
     # 3. 沉淀至 05-助手 (Markdown 与 HTML 双版本)
     archive_path = archive_to_assistant(ai_items, ontology_items, gh_items, date_str, executive_summary=executive_summary)
     html_path = os.path.join(ARCHIVE_DIR, f"{date_str}.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, html_path, executive_summary=executive_summary)
+    render_html(ai_items, ontology_items, gh_items, date_str, html_path, executive_summary=executive_summary, digests_dir=ARCHIVE_DIR, is_root=False)
 
-    # 同时更新 Web 站点首页 index.html
+    # 同时更新 Web 站点首页 index.html（带历史快捷切换条）
     index_html_path = os.path.join(os.path.dirname(__file__), "index.html")
-    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path, executive_summary=executive_summary)
+    local_digests = os.path.join(os.path.dirname(__file__), "digests")
+    render_html(ai_items, ontology_items, gh_items, date_str, index_html_path, executive_summary=executive_summary, digests_dir=local_digests, is_root=True)
 
     print(f"✓ 简报已沉淀到助手知识库: {archive_path}")
     print(f"✓ HTML 页面已生成: {html_path}")
