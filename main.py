@@ -6,7 +6,7 @@
 3. Git 增长最快工具
 特性：
 - 真实性防呆：所有链接均通过有效性校验，杜绝空首页与死链；
-- 架构师启发：注入核心看点、本体落地启发与工具借鉴建议；
+- 本期速读：按实际采集条目展示数量和首项，保留原文摘要；
 - 关机全托管：同步沉淀 Markdown/HTML 并推送到 GitHub Pages 与飞书单聊。
 """
 
@@ -80,7 +80,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
             "tag": "div",
             "text": {
                 "tag": "lark_md",
-                "content": f"**📌 今日脉搏核心速读与架构师建议**\n{executive_summary}"
+                "content": f"**📌 本期速读**\n{executive_summary}"
             }
         })
         elements.append({"tag": "hr"})
@@ -113,7 +113,7 @@ def build_card_content(ai_items: list, ontology_items: list, gh_items: list, dat
         authors_str = ", ".join(item.get("authors", []))
         region = item.get("region", "")
         region_str = f"`{region}` " if region else ""
-        insp_str = f"\n  💡 {item['inspiration']}" if item.get("inspiration") else ""
+        insp_str = f"\n  📄 原文摘要：{item['summary']}" if item.get("summary") else ""
         elements.append({
             "tag": "div",
             "text": {
@@ -165,7 +165,7 @@ def archive_to_assistant(ai_items: list, ontology_items: list, gh_items: list, d
         f.write("> **可信度**: 🟢 官方公开数据源 (经真实链接校验) | **保密级别**: 🔓 可对外 | **更新日期**: " + date_str + "\n\n")
 
         if executive_summary:
-            f.write("## 📌 今日脉搏核心速读与架构师建议\n\n")
+            f.write("## 📌 本期速读\n\n")
             f.write(executive_summary + "\n\n")
 
         f.write("## 1. AI 最新消息\n\n")

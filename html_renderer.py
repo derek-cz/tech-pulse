@@ -7,6 +7,7 @@ HTML 生成器（原生三大核心板块·带完整历史归档与日期切换�
 """
 
 import os
+import html
 import glob
 from datetime import datetime
 
@@ -311,7 +312,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       <!-- 每日速读与建议 -->
       <div class="summary-card">
-        <div class="summary-title">📌 今日脉搏核心速读与架构师建议</div>
+        <div class="summary-title">📌 本期速读</div>
         <div>{executive_summary}</div>
       </div>
     </header>
@@ -472,7 +473,7 @@ def render_html(ai_items: list, ontology_items: list, gh_items: list, date_str: 
 
     html_content = HTML_TEMPLATE.format(
         date_str=date_str,
-        executive_summary=executive_summary.replace("\n", "<br>"),
+        executive_summary=html.escape(executive_summary).replace("\n", "<br>"),
         archive_links=archive_links,
         ai_cards=ai_cards,
         ontology_cards=ont_cards,
