@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技术脉搏研报 · 2026-11-28</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --accent: #0ea5e9;
+      --summary-bg: #f0fdf4;
+      --summary-border: #bbf7d0;
+      --summary-text: #166534;
+      --tag-ai: #dbeafe;
+      --tag-ai-text: #1d4ed8;
+      --tag-ont: #f3e8ff;
+      --tag-ont-text: #7e22ce;
+      --tag-gh: #dcfce7;
+      --tag-gh-text: #15803d;
+      --insight-bg: #f8fafc;
+      --insight-border: #e2e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #090d16;
+        --card-bg: #131b2e;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --border: #1e293b;
+        --primary: #3b82f6;
+        --primary-light: #1e293b;
+        --accent: #38bdf8;
+        --summary-bg: #064e3b22;
+        --summary-border: #047857;
+        --summary-text: #6ee7b7;
+        --tag-ai: #1e293b;
+        --tag-ai-text: #60a5fa;
+        --tag-ont: #2e1065;
+        --tag-ont-text: #c084fc;
+        --tag-gh: #064e3b;
+        --tag-gh-text: #4ade80;
+        --insight-bg: #0d1527;
+        --insight-border: #1e293b;
+      }
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 16px;
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    header {
+      margin-bottom: 24px;
+    }
+    .header-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    /* 历史归档切换条 */
+    .archive-bar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .archive-label {
+      font-weight: 700;
+      color: var(--muted);
+      margin-right: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .archive-link {
+      text-decoration: none;
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .archive-link:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .archive-link.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-item {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-item:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .summary-card {
+      background: var(--summary-bg);
+      border: 1px solid var(--summary-border);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 32px;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text);
+    }
+    .summary-title {
+      font-weight: 700;
+      color: var(--summary-text);
+      margin-bottom: 8px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 36px 0 18px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      scroll-margin-top: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+    .card-top {
+      margin-bottom: 14px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .badge-ai { background: var(--tag-ai); color: var(--tag-ai-text); }
+    .badge-ont { background: var(--tag-ont); color: var(--tag-ont-text); }
+    .badge-gh { background: var(--tag-gh); color: var(--tag-gh-text); }
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      line-height: 1.4;
+      display: block;
+      margin-bottom: 10px;
+    }
+    .card-title:hover {
+      color: var(--primary);
+    }
+    .card-desc {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    .insight-box {
+      background: var(--insight-bg);
+      border-left: 3px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      margin-top: 8px;
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+    .insight-line {
+      margin-bottom: 4px;
+    }
+    .insight-line:last-child {
+      margin-bottom: 0;
+    }
+    .insight-label {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-badge">Daily Tech Intelligence · Core Radar</div>
+      <h1>技术脉搏每日研报</h1>
+      <div class="meta">报告日期：2026-11-28 · 原生三大核心板块 · 真实全活链直达 · 架构师落地启发</div>
+
+      <!-- 往期研报历史切换栏 -->
+      <div class="archive-bar">
+        <span class="archive-label">📅 往期翻阅:</span>
+        <a href="2026-11-28.html" class="archive-link active">2026-11-28 (最新)</a>
+<a href="2026-11-27.html" class="archive-link">2026-11-27</a>
+<a href="2026-11-26.html" class="archive-link">2026-11-26</a>
+<a href="2026-11-25.html" class="archive-link">2026-11-25</a>
+<a href="2026-11-24.html" class="archive-link">2026-11-24</a>
+<a href="2026-11-23.html" class="archive-link">2026-11-23</a>
+<a href="2026-11-22.html" class="archive-link">2026-11-22</a>
+<a href="2026-11-21.html" class="archive-link">2026-11-21</a>
+
+      </div>
+
+      <!-- 快捷导航 -->
+      <div class="nav-bar">
+        <a href="#sec-ai" class="nav-item">🔥 1. AI 最新消息</a>
+        <a href="#sec-ont" class="nav-item">🧩 2. 本体最新消息</a>
+        <a href="#sec-gh" class="nav-item">⚡ 3. Git 增长最快工具</a>
+      </div>
+
+      <!-- 每日速读与建议 -->
+      <div class="summary-card">
+        <div class="summary-title">📌 本期速读</div>
+        <div>AI：5 条；首项：Launch HN: Momentic (YC W24) – Agents that catch bugs by using your app<br>本体：4 条；首项：Ontology-Compiled 2D Clinical State Fields with Bidirectional Diffusion Encoders for Zero-Training Cross-Ontology Medical Coding<br>开源项目：5 条；首项：Marvisak/VIctory<br>速读依据本期采集条目生成；具体内容请查阅原文。</div>
+      </div>
+    </header>
+
+    <!-- 1. AI 最新消息 -->
+    <div id="sec-ai" class="section-title">🔥 1. AI 最新消息</div>
+    <div class="grid">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hacker News</span></div>
+            <a href="https://momentic.ai/" target="_blank" class="card-title">Launch HN: Momentic (YC W24) – Agents that catch bugs by using your app</a>
+            
+          </div>
+          <div class="card-footer">
+            <span>关注度: 168 · 日期: 2026-11-02</span>
+            <a href="https://momentic.ai/" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hacker News</span></div>
+            <a href="https://news.ycombinator.com/item?id=50368804" target="_blank" class="card-title">Launch HN: Kino AI (YC S23) – AI media manager and video editor</a>
+            
+          </div>
+          <div class="card-footer">
+            <span>关注度: 112 · 日期: 2026-11-04</span>
+            <a href="https://news.ycombinator.com/item?id=50368804" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
+            <a href="https://huggingface.co/papers/2611.33885" target="_blank" class="card-title">LayoutRecall: Preserving Appearance in Multi-Round 3D Layout-Controlled Image Editing</a>
+            
+          </div>
+          <div class="card-footer">
+            <span>关注度: 10 · 日期: 2026-11-25</span>
+            <a href="https://huggingface.co/papers/2611.33885" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ai">Hugging Face Daily</span></div>
+            <a href="https://huggingface.co/papers/2611.30025" target="_blank" class="card-title">Damped Atomic Wave Integration Neurons (DAWIN): A Universal Primitive for Continuous-Time Spatiotemporal Learning</a>
+            
+          </div>
+          <div class="card-footer">
+            <span>关注度: 10 · 日期: 2026-11-23</span>
+            <a href="https://huggingface.co/papers/2611.30025" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ai">开源中国 OSChina</span></div>
+            <a href="https://www.oschina.net/news/503872/ai-made-self-hosting-fun-again" target="_blank" class="card-title">AI 让“自托管”又变得好玩了</a>
+            
+          </div>
+          <div class="card-footer">
+            <span>关注度: 热点 · 日期: 2026-11-28</span>
+            <a href="https://www.oschina.net/news/503872/ai-made-self-hosting-fun-again" target="_blank" class="btn">阅读原文 &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <!-- 2. 本体最新消息 -->
+    <div id="sec-ont" class="section-title">🧩 2. 本体最新消息</div>
+    <div class="grid">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="https://arxiv.org/abs/2611.30218v1" target="_blank" class="card-title">Ontology-Compiled 2D Clinical State Fields with Bidirectional Diffusion Encoders for Zero-Training Cross-Ontology Medical Coding</a>
+            <div class="card-desc">Healthcare systems continually revise clinical taxonomies, update reimbursement schedules, and harmonize cross-border registries. Existing automated coding models bind clinical text understanding to fixed vocabulary-specific heads, requirin...</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>作者: Zeqiang Wang (2026-11-23)</span>
+            <a href="https://arxiv.org/abs/2611.30218v1" target="_blank" class="btn">论文直达 (HTTPS) &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="https://arxiv.org/abs/2609.25712v1" target="_blank" class="card-title">TCMaster: Confidence-Aware Querying and Workload-Guided Physical Design for Multi-Source Traditional Chinese Medicine Knowledge Graphs</a>
+            <div class="card-desc">Multi-source knowledge graphs (KGs) need query mechanisms that expose reliability and exploit domain structure. This paper presents TCMaster, a property-graph query substrate for confidence-aware traversal and workload-guided physical desig...</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>作者: Zheng Chen, Yuzhu Li (2026-09-22)</span>
+            <a href="https://arxiv.org/abs/2609.25712v1" target="_blank" class="btn">论文直达 (HTTPS) &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="https://arxiv.org/abs/2609.05139v1" target="_blank" class="card-title">NS-ST-GraphRAG: Neuro-Symbolic Spatio-Temporal GraphRAG for Literary Knowledge Processing</a>
+            <div class="card-desc">Long-form literary narratives pose a distinctive information-processing challenge for retrieval-augmented generation: relevant evidence is distributed across chapters, relations evolve over narrative time, and correct answers may depend joi...</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>作者: Zheng Kui Lin (2026-09-04)</span>
+            <a href="https://arxiv.org/abs/2609.05139v1" target="_blank" class="btn">论文直达 (HTTPS) &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-ont">arXiv cs.AI / cs.LO</span></div>
+            <a href="https://arxiv.org/abs/2611.33563v1" target="_blank" class="card-title">FIG-MAC: A Fine-grained Inspiration Graph Empowered Multi-Agent Collaboration for Automated Scientific Hypothesis Generation</a>
+            <div class="card-desc">Automated Scientific Hypothesis Generation (ASHG) leveraging large language models (LLMs) aims to harness their strengths in knowledge integration, logical reasoning, and text generation for efficiently producing innovative, verifiable scie...</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>作者: Siyuan Chen, Yuping Gao (2026-11-25)</span>
+            <a href="https://arxiv.org/abs/2611.33563v1" target="_blank" class="btn">论文直达 (HTTPS) &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <!-- 3. Git 增长工具 -->
+    <div id="sec-gh" class="section-title">⚡ 3. Git 增长最快的工具</div>
+    <div class="grid">
+      
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 13902 · Rust</span></div>
+            <a href="https://github.com/Marvisak/VIctory" target="_blank" class="card-title">Marvisak/VIctory</a>
+            <div class="card-desc">An attempt at running GTA VI on PC</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/Marvisak/VIctory" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 8772 · Rust</span></div>
+            <a href="https://github.com/xcl-dev/xcl" target="_blank" class="card-title">xcl-dev/xcl</a>
+            <div class="card-desc">Xbox Series compatibility layer for Windows - runs console game code natively, reimplements the console system libraries and recompiles RDNA2 shaders to DXIL</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/xcl-dev/xcl" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 6911 · JavaScript</span></div>
+            <a href="https://github.com/4lwayz/portwatch-vi" target="_blank" class="card-title">4lwayz/portwatch-vi</a>
+            <div class="card-desc">Does GTA VI run on PC yet? A live tracker of community recompilation and emulation efforts, updated daily.</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/4lwayz/portwatch-vi" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🌐 全球</span><span class="badge badge-gh">⭐ 4546 · Rust</span></div>
+            <a href="https://github.com/EL4CTEO/fast-anything" target="_blank" class="card-title">EL4CTEO/fast-anything</a>
+            <div class="card-desc">Don't rewrite it in Rust. Rewrite the 5% that's slow: profile your app, port the hot functions with your coding agent, prove they behave the same. Python, JS/TS, Ruby, Java, Kotlin, Go, PHP, C/C++, C#, R.</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/EL4CTEO/fast-anything" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-top">
+            <div><span class='badge' style='background: #fee2e2; color: #991b1b; margin-right: 4px;'>🇨🇳 中国区</span><span class="badge badge-gh">⭐ 275 · Python</span></div>
+            <a href="https://github.com/Lappercn/tender-master" target="_blank" class="card-title">Lappercn/tender-master</a>
+            <div class="card-desc">招投标大师 (Bidding Master) —— 涵盖国内 20+ 核心公开招投标平台（中国政府采购网、全国公共资源交易平台、国家电网、南方电网、中石油、中化、国家能源、中国华能、中国电信、中国邮政、国铁 95306、中国国航、中国烟草、金采网等）的深网采集与数据解析底座。项目包含早期的多站点自动化解析脚本、跨平台标题清洗与 MD5 指纹去重、6 级预算金额与多联系人防错配正则提取引擎，以及演进后的「六张网」DDD 领域驱动架构（含主从分布式任务队列、断网暂存回放、Windows 浏览器进程树防泄漏守卫、FastAPI 开放查询接口与 Vue 3 可视化管理台）。本项目为大模型普及前夜的个人工程探索归档，完全免费开源，仅供技术学习与架构交流。</div>
+            
+          </div>
+          <div class="card-footer">
+            <span>开源项目</span>
+            <a href="https://github.com/Lappercn/tender-master" target="_blank" class="btn">GitHub 仓库直达 &rarr;</a>
+          </div>
+        </div>
+        
+    </div>
+
+    <footer>
+      <p>由 Tech-Pulse 自动化引擎生成 · 数据沉淀于 05-助手 知识库 · 支持往期历史全量回溯</p>
+    </footer>
+  </div>
+</body>
+</html>
